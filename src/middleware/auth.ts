@@ -1,50 +1,88 @@
-// src/middleware/auth.ts
-
 import { NextFunction, Request, Response } from "express";
-import { JwtUtils } from "../utils/jwt";
-import { Role } from "../../generated/prisma/client";
+import { JwtPayload } from "jsonwebtoken";
+import httpStatus from "http-status";
+
+import { Role } from "../../generated/prisma/enums";
 import config from "../config";
-import { SignOptions } from "jsonwebtoken";
+import { prisma } from "../lib/prisma";
+import { catchAsync } from "../utils/catchAsync";
+import { JsTokentils } from "../utils/jwt";
 
-const auth =
-  (...requiredRoles: Role[]) =>
-  (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const authorization = req.headers.authorization;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        name: string;
+        email: string;
+        role: Role;
+      };
+    }
+  }
+}
 
-      if (!authorization) {
-        return res.status(401).json({
-          success: false,
-          message: "Authorization token is missing",
-        });
+const auth = (...requiredRoles: Role[]) => {
+  return catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      // Get Token
+      const token =
+        req.cookies?.accessToken ||
+        (req.headers.authorization?.startsWith("Bearer ")
+          ? req.headers.authorization.split(" ")[1]
+          : req.headers.authorization);
+
+      if (!token) {
+        throw new Error(
+          "You are not logged in. Please login first."
+        );
       }
 
-      const token = authorization.split(" ")[1];
-
-      const decoded = JwtUtils.verifyToken(
+      // Verify Token
+      const verifiedToken = JsTokentils.verifyToken(
         token,
-        config.jwt_access_secret as SignOptions
+        config.jwt_access_secret as string
       );
 
-      (req as any).user = decoded;
-
-      if (
-        requiredRoles.length &&
-        !requiredRoles.includes(decoded.role)
-      ) {
-        return res.status(403).json({
-          success: false,
-          message: "Forbidden Access",
-        });
+      if (!verifiedToken.success) {
+        throw new Error("Invalid Token");
       }
 
-      next();
-    } catch (error) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid or Expired Token",
+      const { id } = verifiedToken.data as JwtPayload;
+
+      // Check User
+      const user = await prisma.user.findUnique({
+        where: {
+          id,
+        },
       });
+
+      if (!user) {
+        throw new Error(
+          "User not found. Please login again."
+        );
+      }
+
+      // Role Check
+      if (
+        requiredRoles.length &&
+        !requiredRoles.includes(user.role)
+      ) {
+        throw new Error(
+          "Forbidden! You do not have permission to access this resource."
+        );
+      }
+
+      // Attach User
+      req.user = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      };
+
+      next();
     }
-  };
+  );
+};
 
 export default auth;

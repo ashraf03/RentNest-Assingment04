@@ -1,26 +1,18 @@
-// src/modules/auth/auth.route.ts
-
 import express from "express";
 import { AuthController } from "./auth.controller";
+import { Role } from "../../../generated/prisma/enums";
 import auth from "../../middleware/auth";
-// import validateRequest from "../../middleware/validateRequest";
-// import { AuthValidation } from "./auth.validation";
 
 const router = express.Router();
 
 // Register User
 router.post("/register", AuthController.registerUser);
 
+// Login User
 router.post(
   "/login",
-//   validateRequest(AuthValidation.loginValidationSchema),
   AuthController.loginUser
 );
 
-router.get(
-  "/me",
-  auth(),
-  AuthController.getMe
-);
-
+router.get("/me", auth(Role.ADMIN, Role.LANDLORD, Role.TENANT), AuthController.getMe);
 export const AuthRoutes = router;

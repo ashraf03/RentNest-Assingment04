@@ -2,6 +2,9 @@ import bcrypt from "bcryptjs";
 import config from "../../config";
 import { IRegisterUser } from "./auth.interface";
 import { prisma } from "../../lib/prisma";
+import { JwtPayload, SignOptions } from "jsonwebtoken";
+import { JsTokentils } from "../../utils/jwt";
+
 
 const registerUserIntoDB = async (payload: IRegisterUser) => {
   const {
@@ -55,6 +58,78 @@ const registerUserIntoDB = async (payload: IRegisterUser) => {
   return user;
 };
 
+const loginUser = async (payload: {
+  email: string;
+  password: string;
+}) => {
+  const { email, password } = payload;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const isPasswordMatched = await bcrypt.compare(
+    password,
+    user.password
+  );
+
+  if (!isPasswordMatched) {
+    throw new Error("Password does not match");
+  }
+
+ const accessToken = JsTokentils.createToken(
+  {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  },
+  config.jwt_access_secret as string,
+  config.jwt_access_expires_in as SignOptions
+);
+
+const refreshToken = JsTokentils.createToken(
+  {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  },
+  config.jwt_refresh_secret as string,
+  config.jwt_access_expires_in as SignOptions
+);
+  return {
+    accessToken,
+    refreshToken
+  };
+};
+
+
+const getMe = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    omit: {
+      password: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+};
+
 export const AuthService = {
   registerUserIntoDB,
+  loginUser,
+  getMe,
 };
