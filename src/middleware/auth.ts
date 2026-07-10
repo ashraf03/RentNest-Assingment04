@@ -2,7 +2,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import { JwtUtils } from "../utils/jwt";
-import { Role } from "@prisma/client";
+import { Role } from "../../generated/prisma/client";
 import config from "../config";
 import { SignOptions } from "jsonwebtoken";
 

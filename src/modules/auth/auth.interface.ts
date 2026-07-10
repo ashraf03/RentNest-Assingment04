@@ -1,6 +1,6 @@
 // src/modules/auth/auth.interface.ts
 
-import { Role } from "@prisma/client";
+import { Role } from "../../../generated/prisma/enums";
 
 /**
  * Register Payload
