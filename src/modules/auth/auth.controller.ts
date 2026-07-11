@@ -54,7 +54,7 @@ const loginUser = catchAsync(async (req, res, next) => {
   }
 });
 
-const getMe = catchAsync(async (req: Request, res: Response, next:NextFunction) => {
+const getMe = catchAsync(async (req, res, next) => {
   try {
     const result = await AuthService.getMe(req.user?.id as string);
 
