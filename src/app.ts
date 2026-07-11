@@ -3,6 +3,7 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import config from "./config";
 import { AuthRoutes } from "./modules/auth/auth.route";
+import { PropertyRoutes } from "./modules/properties/properties.route";
 
 const app: Application = express();
 
@@ -17,7 +18,7 @@ app.use(cookieParser());
 
 
 app.use("/api/auth", AuthRoutes);
-
+app.use("/api/properties", PropertyRoutes);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Hello World");
