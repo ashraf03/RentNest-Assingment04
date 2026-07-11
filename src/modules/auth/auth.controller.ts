@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { catchAsync } from "../../utils/catchAsync";
 
-const registerUser = catchAsync(async (req: Request, res: Response) => {
+const registerUser = catchAsync(async (req, res) => {
   try {
     const result = await AuthService.registerUserIntoDB(req.body);
 
