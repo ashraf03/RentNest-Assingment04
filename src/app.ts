@@ -8,6 +8,7 @@ import { LandManagementRoutes } from "./modules/landlordManagement/landlordManag
 import { RentalRequestRoutes } from "./modules/rentalRequest/rentalRequest.route";
 import { ReviewRoute } from "./modules/reviews/reviews.route";
 import { PaymentRoutes } from "./modules/payment/payment.route";
+import { AdminRoutes } from "./modules/admin/admin.route";
 
 const app: Application = express();
 
@@ -27,6 +28,8 @@ app.use("/api/landlord", LandManagementRoutes);
 app.use("/api/rentals", RentalRequestRoutes);
 app.use("/api/payments", PaymentRoutes);
 app.use("/api/reviews", ReviewRoute);
+app.use("/api/admin", AdminRoutes);
+
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Hello World");

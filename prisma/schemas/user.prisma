@@ -9,7 +9,7 @@ model User {
   profileImage  String?
 
   role          Role
-
+  status        UserStatus @default(ACTIVE)
   properties     Property[]
   tenantRequests RentalRequest[] @relation("Tenant")
   ownerRequests  RentalRequest[] @relation("Landlord")
