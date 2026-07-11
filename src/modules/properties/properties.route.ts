@@ -2,6 +2,8 @@ import express from "express";
 import { Role } from "../../../generated/prisma/enums";
 import auth from "../../middleware/auth";
 import { PropertyController } from "./properties.controller";
+import validateRequest from "../../middleware/validateRequest";
+import { PropertyValidation } from "./property.validation";
 
 
 const router = express.Router();
@@ -10,7 +12,7 @@ const router = express.Router();
 router.post(
   "/",
   auth(Role.LANDLORD),
-//   validateRequest(PropertyValidation.createPropertyValidationSchema),
+validateRequest(PropertyValidation.createPropertyValidationSchema),
   PropertyController.createProperty
 );
 
@@ -30,7 +32,7 @@ router.get(
 router.patch(
   "/:id",
   auth(Role.LANDLORD),
-//   validateRequest(PropertyValidation.updatePropertyValidationSchema),
+  validateRequest(PropertyValidation.updatePropertyValidationSchema),
   PropertyController.updateProperty
 );
 
