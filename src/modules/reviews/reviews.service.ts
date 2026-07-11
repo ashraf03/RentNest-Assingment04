@@ -1,10 +1,5 @@
-import httpStatus from "http-status";
-import prisma from "../../../shared/prisma";
-import AppError from "../../errors/AppError";
-import {
-  PaymentStatus,
-  RentalRequestStatus,
-} from "@prisma/client";
+import { PaymentStatus, RentalRequestStatus } from "../../../generated/prisma/enums";
+import { prisma } from "../../lib/prisma";
 
 interface IReviewPayload {
   propertyId: string;
@@ -17,6 +12,7 @@ const createReview = async (
   tenantId: string
 ) => {
   // Check Property
+
   const property = await prisma.property.findUnique({
     where: {
       id: payload.propertyId,
@@ -24,43 +20,32 @@ const createReview = async (
   });
 
   if (!property) {
-    throw new AppError(
-      httpStatus.NOT_FOUND,
+    throw new Error(
       "Property not found"
     );
   }
 
-  // Check Approved Rental
+  // Check Completed Rental
+
   const rentalRequest = await prisma.rentalRequest.findFirst({
     where: {
       propertyId: payload.propertyId,
       tenantId,
       status: RentalRequestStatus.APPROVED,
-    },
-    include: {
-      payment: true,
+      payment: {
+        status: PaymentStatus.COMPLETED,
+      },
     },
   });
 
   if (!rentalRequest) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "You have not rented this property"
+    throw new Error(
+      "You can review only after completing the rental payment"
     );
   }
 
-  // Check Payment
-  if (
-    !rentalRequest.payment ||
-    rentalRequest.payment.status !== PaymentStatus.COMPLETED
-  ) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Complete payment before leaving a review"
-    );
-  }
+  // Already Reviewed
 
-  // Check Existing Review
   const existingReview = await prisma.review.findFirst({
     where: {
       propertyId: payload.propertyId,
@@ -69,13 +54,13 @@ const createReview = async (
   });
 
   if (existingReview) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
+    throw new Error(
       "You have already reviewed this property"
     );
   }
 
   // Create Review
+
   const result = await prisma.review.create({
     data: {
       propertyId: payload.propertyId,
@@ -85,14 +70,18 @@ const createReview = async (
     },
 
     include: {
-      property: true,
-
       tenant: {
         select: {
           id: true,
           name: true,
           email: true,
           profileImage: true,
+        },
+      },
+
+      property: {
+        include: {
+          category: true,
         },
       },
     },
