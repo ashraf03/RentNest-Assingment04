@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { catchAsync } from "../../utils/catchAsync";
 
-const registerUser = catchAsync(async (req, res) => {
+const registerUser = catchAsync(async (req: Request, res: Response) => {
   try {
     const result = await AuthService.registerUserIntoDB(req.body);
 
@@ -21,7 +21,7 @@ const registerUser = catchAsync(async (req, res) => {
   }
 });
 
-const loginUser = catchAsync(async (req, res, next) => {
+const loginUser = catchAsync(async (req: Request, res: Response, next:NextFunction) => {
   try {
     const payload = req.body;
     const {accessToken, refreshToken} = await AuthService.loginUser(payload);
@@ -54,7 +54,7 @@ const loginUser = catchAsync(async (req, res, next) => {
   }
 });
 
-const getMe = catchAsync(async (req, res, next) => {
+const getMe = catchAsync(async (req: Request, res: Response, next:NextFunction) => {
   try {
     const result = await AuthService.getMe(req.user?.id as string);
 
