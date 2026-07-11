@@ -168,6 +168,7 @@ const getSingleRentalRequest = async (
 
   return result;
 };
+
 export const RentalRequestService = {
   createRentalRequest,
   getMyRentalRequests,

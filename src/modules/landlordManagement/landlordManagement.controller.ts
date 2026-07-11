@@ -1,5 +1,3 @@
-// src/app/modules/landManagement/landManagement.controller.ts
-
 import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
 import { PropertyService } from "../properties/properties.service";
