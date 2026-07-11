@@ -5,6 +5,7 @@ import config from "./config";
 import { AuthRoutes } from "./modules/auth/auth.route";
 import { PropertyRoutes } from "./modules/properties/properties.route";
 import { LandManagementRoutes } from "./modules/landlordManagement/landlordManagement.route";
+import { RentalRequestRoutes } from "./modules/rentalRequest/rentalRequest.route";
 
 const app: Application = express();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use("/api/auth", AuthRoutes);
 app.use("/api/properties", PropertyRoutes);
 app.use("/api/landlord", LandManagementRoutes);
+app.use("/api/rentals", RentalRequestRoutes);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Hello World");

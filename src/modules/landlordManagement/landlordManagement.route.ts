@@ -1,9 +1,9 @@
 // src/app/modules/landManagement/landManagement.route.ts
 
 import express from "express";
-import { LandManagementController } from "./landManagement.controller";
 import { Role } from "../../../generated/prisma/enums";
 import auth from "../../middleware/auth";
+import { LandManagementController } from "./landlordManagement.controller";
 
 const router = express.Router();
 
