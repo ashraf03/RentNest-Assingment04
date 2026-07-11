@@ -41,9 +41,9 @@ const getSingleProperty = catchAsync(async (req: Request, res: Response) => {
 
 const updateProperty = catchAsync(async (req: Request, res: Response) => {
   const result = await PropertyService.updateProperty(
-    req.params.id,
+    req.params.id as string,
     req.body,
-    req.user?.id
+    req.user?.id as string
   );
 
   sendResponse(res, {
