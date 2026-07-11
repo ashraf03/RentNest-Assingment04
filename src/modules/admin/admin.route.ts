@@ -2,6 +2,8 @@ import { AdminController } from "./admin.controller";
 import express from "express";
 import auth from "../../middleware/auth";
 import { Role } from "../../../generated/prisma/enums";
+import { AdminValidation } from "./admin.validation";
+import validateRequest from "../../middleware/validateRequest";
 
 const router = express.Router();
 
@@ -14,6 +16,7 @@ router.get(
 router.patch(
   "/users/:id",
   auth(Role.ADMIN),
+  validateRequest(AdminValidation.updateUserStatusValidationSchema),
   AdminController.updateUserStatus
 );
 
